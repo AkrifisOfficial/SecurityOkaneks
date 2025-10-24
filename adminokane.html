@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель - Оканэ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #2d1b0e 0%, #4a2c1a 100%);
+            color: #f8e9d9;
+            line-height: 1.6;
+            min-height: 100vh;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(226, 135, 67, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(193, 118, 44, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(160, 82, 45, 0.15) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        header {
+            background: linear-gradient(90deg, #3d2415 0%, #5a351d 100%);
+            padding: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(226, 135, 67, 0.3);
+        }
+        
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #e28743;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 0 10px rgba(226, 135, 67, 0.5);
+        }
+        
+        .logo span {
+            color: #f8d5b9;
+        }
+        
+        .logo i {
+            margin-right: 10px;
+            color: #f8d5b9;
+        }
+        
+        .admin-header {
+            text-align: center;
+            margin: 2rem 0;
+        }
+        
+        .admin-header h1 {
+            font-size: 2.5rem;
+            color: #e28743;
+            text-shadow: 0 0 10px rgba(226, 135, 67, 0.5);
+            margin-bottom: 0.5rem;
+        }
+        
+        .admin-header p {
+            color: #f8d5b9;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .auth-container {
+            max-width: 500px;
+            margin: 5rem auto;
+            padding: 2rem;
+            background: rgba(61, 36, 21, 0.8);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(226, 135, 67, 0.3);
+        }
+        
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #e28743;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #f8d5b9;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(90, 53, 29, 0.8);
+            border: 1px solid rgba(226, 135, 67, 0.4);
+            border-radius: 6px;
+            color: #f8e9d9;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #e28743;
+            box-shadow: 0 0 10px rgba(226, 135, 67, 0.4);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #e28743;
+            color: #2d1b0e;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            background: #c1762c;
+            box-shadow: 0 5px 15px rgba(226, 135, 67, 0.4);
+        }
+        
+        .btn-block {
+            display: block;
+            width: 100%;
+        }
+        
+        .btn-danger {
+            background: #d9534f;
+        }
+        
+        .btn-danger:hover {
+            background: #c9302c;
+        }
+        
+        .btn-warning {
+            background: #f0ad4e;
+        }
+        
+        .btn-warning:hover {
+            background: #ec971f;
+        }
+        
+        .btn-success {
+            background: #5cb85c;
+        }
+        
+        .btn-success:hover {
+            background: #449d44;
+        }
+        
+        .admin-panel {
+            display: none;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(226, 135, 67, 0.3);
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            color: #f8d5b9;
+            font-weight: 500;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab.active {
+            color: #e28743;
+            border-bottom: 3px solid #e28743;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: rgba(61, 36, 21, 0.8);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(226, 135, 67, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card h3 {
+            margin-bottom: 1.5rem;
+            color: #e28743;
+            font-size: 1.5rem;
+        }
+        
+        .anime-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .anime-item {
+            background: rgba(90, 53, 29, 0.8);
+            border-radius: 8px;
+            padding: 1.5rem;
+            border: 1px solid rgba(226, 135, 67, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .anime-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .anime-item h4 {
+            color: #f8d5b9;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .anime-item p {
+            color: #e28743;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .anime-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .anime-actions .btn {
+            flex: 1;
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .episode-list {
+            margin-top: 1rem;
+        }
+        
+        .episode-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            background: rgba(90, 53, 29, 0.5);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border: 1px solid rgba(226, 135, 67, 0.2);
+        }
+        
+        .episode-info {
+            flex: 1;
+        }
+        
+        .episode-info h5 {
+            color: #f8d5b9;
+            margin-bottom: 0.25rem;
+        }
+        
+        .episode-info p {
+            color: #e28743;
+            font-size: 0.8rem;
+            margin: 0;
+        }
+        
+        .episode-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .message {
+            padding: 1rem;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .message.success {
+            background: rgba(92, 184, 92, 0.2);
+            border: 1px solid rgba(92, 184, 92, 0.5);
+            color: #5cb85c;
+        }
+        
+        .message.error {
+            background: rgba(217, 83, 79, 0.2);
+            border: 1px solid rgba(217, 83, 79, 0.5);
+            color: #d9534f;
+        }
+        
+        .message.warning {
+            background: rgba(240, 173, 78, 0.2);
+            border: 1px solid rgba(240, 173, 78, 0.5);
+            color: #f0ad4e;
+        }
+        
+        footer {
+            background: rgba(61, 36, 21, 0.8);
+            padding: 2rem 1rem;
+            text-align: center;
+            margin-top: 3rem;
+            border-top: 1px solid rgba(226, 135, 67, 0.3);
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #e28743;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px rgba(226, 135, 67, 0.5);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .kodik-link-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: rgba(90, 53, 29, 0.5);
+            border-radius: 6px;
+            border: 1px solid rgba(226, 135, 67, 0.2);
+        }
+        
+        .kodik-link-item .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .remove-kodik-link {
+            background: #d9534f;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            width: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .remove-kodik-link:hover {
+            background: #c9302c;
+        }
+        
+        .add-kodik-link {
+            margin-top: 1rem;
+        }
+        
+        .github-config {
+            background: rgba(90, 53, 29, 0.8);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(226, 135, 67, 0.3);
+        }
+        
+        .github-config h4 {
+            color: #e28743;
+            margin-bottom: 1rem;
+        }
+        
+        .github-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d9534f;
+        }
+        
+        .status-indicator.connected {
+            background: #5cb85c;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 2rem;
+            font-size: 1.2rem;
+            color: #e28743;
+        }
+        
+        .loader i {
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #3d2415 0%, #5a351d 100%);
+            margin: 2rem auto;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 800px;
+            width: 90%;
+            position: relative;
+            border: 1px solid rgba(226, 135, 67, 0.3);
+            box-shadow: 0 0 30px rgba(226, 135, 67, 0.2);
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            color: #f8d5b9;
+            font-size: 2rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            z-index: 1001;
+            transition: color 0.3s;
+        }
+        
+        .close-modal:hover {
+            color: #e28743;
+        }
+        
+        .episode-management {
+            margin-top: 2rem;
+        }
+        
+        .current-episodes {
+            margin-top: 1.5rem;
+        }
+        
+        .episode-item-management {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(90, 53, 29, 0.5);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            border: 1px solid rgba(226, 135, 67, 0.2);
+        }
+        
+        .episode-item-management .episode-info {
+            flex: 1;
+        }
+        
+        .compact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .kodik-url-info {
+            background: rgba(226, 135, 67, 0.1);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #e28743;
+        }
+        
+        .kodik-url-info h5 {
+            color: #e28743;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kodik-url-info p {
+            color: #f8d5b9;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kodik-url-example {
+            background: rgba(90, 53, 29, 0.8);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #e28743;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .tab {
+                padding: 0.75rem 1rem;
+                text-align: center;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .form-row .form-group {
+                margin-bottom: 1rem;
+            }
+            
+            .kodik-link-item {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            
+            .anime-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .anime-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <a href="index.html" class="logo"><i class="fas fa-paw"></i>Оканэ</a>
+        </div>
+    </header>
+
+    <div class="admin-header">
+        <h1>Админ-панель</h1>
+        <p>Управление аниме и сериями</p>
+    </div>
+
+    <div class="container">
+        <div id="auth-container" class="auth-container">
+            <h2>Вход в админ-панель</h2>
+            <div class="form-group">
+                <label for="password">Пароль</label>
+                <input type="password" id="password" class="form-control" placeholder="Введите пароль">
+            </div>
+            <button id="login-btn" class="btn btn-block">Войти</button>
+            <div id="auth-message" class="message" style="display: none;"></div>
+        </div>
+
+        <div id="admin-panel" class="admin-panel">
+            <div class="github-config">
+                <h4>Настройки GitHub</h4>
+                <div class="form-group">
+                    <label for="github-token">GitHub Personal Access Token</label>
+                    <input type="password" id="github-token" class="form-control" placeholder="Введите ваш GitHub токен">
+                    <small style="color: #e28743; margin-top: 0.5rem; display: block;">
+                        Токен нужен для доступа к репозиторию. Убедитесь, что у него есть права на запись.
+                    </small>
+                </div>
+                <div class="github-status">
+                    <div id="github-status-indicator" class="status-indicator"></div>
+                    <span id="github-status-text">Не подключено к GitHub</span>
+                </div>
+                <button id="test-github" class="btn" style="margin-top: 1rem;">Проверить подключение</button>
+            </div>
+
+            <div class="tabs">
+                <div class="tab active" data-tab="add-anime">Добавить аниме</div>
+                <div class="tab" data-tab="add-episodes">Добавить серии</div>
+                <div class="tab" data-tab="manage-anime">Управление аниме</div>
+                <div class="tab" data-tab="data-management">Работа с данными</div>
+            </div>
+
+            <div id="add-anime" class="tab-content active">
+                <div class="card">
+                    <h3>Добавить новое аниме</h3>
+                    <form id="anime-form" class="compact-form">
+                        <div class="form-group">
+                            <label for="anime-title">Название аниме</label>
+                            <input type="text" id="anime-title" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="anime-description">Описание</label>
+                            <textarea id="anime-description" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="anime-category">Категория</label>
+                                <select id="anime-category" class="form-control" required>
+                                    <option value="new">Онгоинги</option>
+                                    <option value="completed">Завершённые</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="anime-episodes">Количество серий</label>
+                                <input type="number" id="anime-episodes" class="form-control" min="1" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="anime-image">Ссылка на изображение</label>
+                            <input type="url" id="anime-image" class="form-control" required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-block">Добавить аниме</button>
+                    </form>
+                    <div id="anime-form-message" class="message" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div id="add-episodes" class="tab-content">
+                <div class="card">
+                    <h3>Добавить серии к аниме</h3>
+                    
+                    <div class="kodik-url-info">
+                        <h5>Формат ссылок Kodik</h5>
+                        <p>Принимаются ссылки в формате:</p>
+                        <div class="kodik-url-example">//kodikdb.com/uv/723044/70f2cc64b32bf3cfe844/720p</div>
+                        <p>Ссылка будет автоматически преобразована для работы в плеере.</p>
+                    </div>
+                    
+                    <form id="episode-form" class="compact-form">
+                       <div class="form-group">
+                            <label for="select-anime">Выберите аниме</label>
+                            <select id="select-anime" class="form-control" required>
+                                <option value="">-- Выберите аниме --</option>
+                            </select>
+                        </div>
+                        
+                        <h4>Добавить серии</h4>
+                        <div id="kodik-links-container">
+                            <div class="kodik-link-item">
+                                <div class="form-group">
+                                    <label>Название серии</label>
+                                    <input type="text" class="form-control episode-title" placeholder="Название серии">
+                                </div>
+                                <div class="form-group">
+                                    <label>Длительность</label>
+                                    <input type="text" class="form-control episode-duration" placeholder="Например: 24 минуты">
+                                </div>
+                                <div class="form-group">
+                                    <label>Ссылка на плеер Kodik</label>
+                                    <input type="text" class="form-control episode-url" placeholder="//kodikdb.com/uv/723044/..." required>
+                                </div>
+                                <button type="button" class="remove-kodik-link" style="display: none;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <button type="button" id="add-kodik-link" class="btn add-kodik-link">
+                            <i class="fas fa-plus"></i> Добавить серию
+                        </button>
+                        
+                        <button type="submit" class="btn btn-block" style="margin-top: 2rem;">Добавить серии</button>
+                    </form>
+                    <div id="episode-form-message" class="message" style="display: none;"></div>
+                </div>
+            </div>
+
+            <div id="manage-anime" class="tab-content">
+                <div class="card">
+                    <h3>Управление аниме</h3>
+                    <div id="anime-list-loader" class="loader" style="display: none;">
+                        <i class="fas fa-spinner"></i> Загрузка данных...
+                    </div>
+                    <div id="anime-list" class="anime-list">
+                        <!-- Список аниме будет загружен здесь -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="data-management" class="tab-content">
+                <div class="card">
+                    <h3>Работа с данными</h3>
+                    <p>Синхронизация данных с GitHub репозиторием.</p>
+                    
+                    <div class="form-row">
+                        <button id="load-from-github" class="btn">Загрузить из GitHub</button>
+                        <button id="save-to-github" class="btn">Сохранить в GitHub</button>
+                    </div>
+                    
+                    <div id="data-message" class="message" style="display: none; margin-top: 1rem;"></div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <h4>Текущие данные</h4>
+                        <button id="toggle-json" class="btn">Показать/скрыть JSON</button>
+                        <pre id="json-data" style="background: rgba(90, 53, 29, 0.8); padding: 1rem; border-radius: 6px; overflow: auto; max-height: 400px; font-size: 0.9rem; display: none;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования аниме -->
+    <div class="modal" id="edit-anime-modal">
+        <div class="modal-content">
+            <button class="close-modal" id="close-edit-modal">&times;</button>
+            <h2>Редактирование аниме</h2>
+            
+            <div class="kodik-url-info">
+                <h5>Формат ссылок Kodik</h5>
+                <p>Принимаются ссылки в формате:</p>
+                <div class="kodik-url-example">//kodikdb.com/uv/723044/70f2cc64b32bf3cfe844/720p</div>
+                <p>Ссылка будет автоматически преобразована для работы в плеере.</p>
+            </div>
+            
+            <form id="edit-anime-form" class="compact-form">
+                <input type="hidden" id="edit-anime-id">
+                <div class="form-group">
+                    <label for="edit-anime-title">Название аниме</label>
+                    <input type="text" id="edit-anime-title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-anime-description">Описание</label>
+                    <textarea id="edit-anime-description" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-anime-category">Категория</label>
+                        <select id="edit-anime-category" class="form-control" required>
+                            <option value="new">Онгоинги</option>
+                            <option value="completed">Завершённые</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-anime-episodes">Количество серий</label>
+                        <input type="number" id="edit-anime-episodes" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-anime-image">Ссылка на изображение</label>
+                    <input type="url" id="edit-anime-image" class="form-control" required>
+                </div>
+                
+                <div class="episode-management">
+                    <h3>Управление сериями</h3>
+                    <div class="current-episodes" id="current-episodes">
+                        <!-- Список текущих серий будет здесь -->
+                    </div>
+                    
+                    <h4>Добавить новую серию</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Название серии</label>
+                            <input type="text" id="new-episode-title" class="form-control" placeholder="Название серии">
+                        </div>
+                        <div class="form-group">
+                            <label>Длительность</label>
+                            <input type="text" id="new-episode-duration" class="form-control" placeholder="Например: 24 минуты">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ссылка на плеер Kodik</label>
+                        <input type="text" id="new-episode-url" class="form-control" placeholder="//kodikdb.com/uv/723044/...">
+                    </div>
+                    <button type="button" id="add-new-episode" class="btn">Добавить серию</button>
+                </div>
+                
+                <div class="form-row" style="margin-top: 2rem;">
+                    <button type="submit" class="btn btn-success">Сохранить изменения</button>
+                    <button type="button" id="cancel-edit" class="btn btn-danger">Отмена</button>
+                </div>
+            </form>
+            <div id="edit-anime-message" class="message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">Оканэ Админ-панель</div>
+            <p>© 2025 Оканэ. Все права защищены.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Конфигурация GitHub репозитория
+        const GITHUB_OWNER = 'AkrifisOfficial';
+        const GITHUB_REPO = 'Okwelis-repo';
+        const GITHUB_FILE_PATH = 'anime-data.json';
+        const GITHUB_API_URL = 'https://raw.githubusercontent.com/AkrifisOfficial/Okwelis-repo/main/anime-data.json';
+        
+        // Пароль для доступа к админ-панели
+        const ADMIN_PASSWORD = 'SecurityOkaneks';
+        
+        // Текущие данные об аниме
+        let animeData = [];
+        let githubToken = '';
+        let isGitHubConnected = false;
+        let currentEditingAnime = null;
+        
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', () => {
+            // Проверяем, авторизован ли пользователь
+            checkAuth();
+            
+            // Загружаем сохраненный токен GitHub
+            const savedToken = localStorage.getItem('github_token');
+            if (savedToken) {
+                document.getElementById('github-token').value = savedToken;
+                githubToken = savedToken;
+                testGitHubConnection();
+            }
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+        });
+        
+        // Проверка авторизации
+        function checkAuth() {
+            const isAuthenticated = sessionStorage.getItem('admin_authenticated') === 'true';
+            
+            if (isAuthenticated) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadAnimeData();
+            } else {
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('admin-panel').style.display = 'none';
+            }
+        }
+        
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Вход в систему
+            document.getElementById('login-btn').addEventListener('click', handleLogin);
+            document.getElementById('password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            
+            // GitHub токен
+            document.getElementById('github-token').addEventListener('input', (e) => {
+                githubToken = e.target.value;
+                localStorage.setItem('github_token', githubToken);
+                updateGitHubStatus(false);
+            });
+            
+            // Проверка подключения к GitHub
+            document.getElementById('test-github').addEventListener('click', testGitHubConnection);
+            
+            // Переключение вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Убираем активный класс у всех вкладок
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    // Добавляем активный класс текущей вкладке
+                    tab.classList.add('active');
+                    
+                    // Скрываем все содержимое вкладок
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Показываем содержимое активной вкладки
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Если активна вкладка управления, загружаем список аниме
+                    if (tabId === 'manage-anime') {
+                        renderAnimeList();
+                    } else if (tabId === 'add-episodes') {
+                        populateAnimeSelect();
+                    }
+                });
+            });
+            
+            // Добавление формы аниме
+            document.getElementById('anime-form').addEventListener('submit', handleAddAnime);
+            
+            // Добавление формы серий
+            document.getElementById('episode-form').addEventListener('submit', handleAddEpisodes);
+            
+            // Добавление ссылки на Kodik
+            document.getElementById('add-kodik-link').addEventListener('click', addKodikLinkField);
+            
+            // Работа с данными
+            document.getElementById('load-from-github').addEventListener('click', loadFromGitHub);
+            document.getElementById('save-to-github').addEventListener('click', saveToGitHub);
+            document.getElementById('toggle-json').addEventListener('click', toggleJsonView);
+            
+            // Редактирование аниме
+            document.getElementById('edit-anime-form').addEventListener('submit', handleEditAnime);
+            document.getElementById('add-new-episode').addEventListener('click', addNewEpisode);
+            document.getElementById('close-edit-modal').addEventListener('click', closeEditModal);
+            document.getElementById('cancel-edit').addEventListener('click', closeEditModal);
+            
+            // Закрытие модального окна при клике вне его
+            document.getElementById('edit-anime-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('edit-anime-modal')) {
+                    closeEditModal();
+                }
+            });
+        }
+        
+        // Функция для нормализации ссылок Kodik
+        function normalizeKodikUrl(url) {
+            if (!url) return '';
+            
+            // Если ссылка уже начинается с https://, оставляем как есть
+            if (url.startsWith('https://')) {
+                return url;
+            }
+            
+            // Если ссылка начинается с //, добавляем https:
+            if (url.startsWith('//')) {
+                return 'https:' + url;
+            }
+            
+            // Если ссылка начинается с http://, заменяем на https://
+            if (url.startsWith('http://')) {
+                return url.replace('http://', 'https://');
+            }
+            
+            // Если ссылка не имеет протокола, добавляем https://
+            if (!url.startsWith('http')) {
+                return 'https://' + url;
+            }
+            
+            return url;
+        }
+        
+        // Обработчик входа в систему
+        function handleLogin() {
+            const password = document.getElementById('password').value;
+            const messageEl = document.getElementById('auth-message');
+            
+            if (password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('admin_authenticated', 'true');
+                messageEl.textContent = 'Успешный вход!';
+                messageEl.className = 'message success';
+                messageEl.style.display = 'block';
+                
+                setTimeout(() => {
+                    checkAuth();
+                }, 1000);
+            } else {
+                messageEl.textContent = 'Неверный пароль!';
+                messageEl.className = 'message error';
+                messageEl.style.display = 'block';
+            }
+        }
+        
+        // Проверка подключения к GitHub
+        async function testGitHubConnection() {
+            if (!githubToken) {
+                showMessage('Введите GitHub токен', 'error', 'data-message');
+                return;
+            }
+            
+            try {
+                const response = await fetch(GITHUB_API_URL, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (response.ok) {
+                    updateGitHubStatus(true);
+                    showMessage('Успешное подключение к GitHub', 'success', 'data-message');
+                } else {
+                    updateGitHubStatus(false);
+                    showMessage('Ошибка подключения к GitHub', 'error', 'data-message');
+                }
+            } catch (error) {
+                console.error('Ошибка проверки подключения:', error);
+                updateGitHubStatus(false);
+                showMessage('Ошибка подключения к GitHub', 'error', 'data-message');
+            }
+        }
+        
+        // Обновление статуса GitHub
+        function updateGitHubStatus(connected) {
+            isGitHubConnected = connected;
+            const statusIndicator = document.getElementById('github-status-indicator');
+            const statusText = document.getElementById('github-status-text');
+            
+            if (connected) {
+                statusIndicator.className = 'status-indicator connected';
+                statusText.textContent = 'Подключено к GitHub';
+            } else {
+                statusIndicator.className = 'status-indicator';
+                statusText.textContent = 'Не подключено к GitHub';
+            }
+        }
+        
+        // Загрузка данных из GitHub
+        async function loadFromGitHub() {
+            if (!isGitHubConnected) {
+                showMessage('Сначала подключитесь к GitHub', 'error', 'data-message');
+                return;
+            }
+            
+            try {
+                const response = await fetch(GITHUB_API_URL, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка HTTP: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Исправление проблемы с кодировкой
+                const content = decodeBase64UTF8(data.content);
+                animeData = JSON.parse(content);
+                
+                // Обновляем UI
+                updateUI();
+                renderAnimeList();
+                populateAnimeSelect();
+                showMessage('Данные успешно загружены из GitHub', 'success', 'data-message');
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showMessage('Ошибка загрузки данных из GitHub', 'error', 'data-message');
+            }
+        }
+        
+        // Сохранение данных в GitHub
+        async function saveToGitHub() {
+            if (!isGitHubConnected) {
+                showMessage('Сначала подключитесь к GitHub', 'error', 'data-message');
+                return;
+            }
+            
+            try {
+                // Сначала получаем текущий файл, чтобы получить SHA
+                const getResponse = await fetch(GITHUB_API_URL, {
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json'
+                    }
+                });
+                
+                if (!getResponse.ok) {
+                    throw new Error(`Ошибка получения файла: ${getResponse.status}`);
+                }
+                
+                const fileData = await getResponse.json();
+                const sha = fileData.sha;
+                
+                // Подготавливаем данные для отправки
+                const content = JSON.stringify(animeData, null, 2);
+                const encodedContent = encodeBase64UTF8(content);
+                
+                const updateData = {
+                    message: `Обновление данных аниме: ${new Date().toLocaleString()}`,
+                    content: encodedContent,
+                    sha: sha
+                };
+                
+                // Отправляем обновленные данные
+                const putResponse = await fetch(GITHUB_API_URL, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${githubToken}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updateData)
+                });
+                
+                if (putResponse.ok) {
+                    showMessage('Данные успешно сохранены в GitHub', 'success', 'data-message');
+                } else {
+                    throw new Error(`Ошибка сохранения: ${putResponse.status}`);
+                }
+            } catch (error) {
+                console.error('Ошибка сохранения данных:', error);
+                showMessage('Ошибка сохранения данных в GitHub', 'error', 'data-message');
+            }
+        }
+        
+        // Функции для работы с кодировкой UTF-8
+        function encodeBase64UTF8(str) {
+            return btoa(unescape(encodeURIComponent(str)));
+        }
+        
+        function decodeBase64UTF8(str) {
+            return decodeURIComponent(escape(atob(str)));
+        }
+        
+        // Загрузка данных об аниме
+        function loadAnimeData() {
+            // Если данные уже загружены, просто рендерим их
+            if (animeData.length > 0) {
+                renderAnimeList();
+                populateAnimeSelect();
+                return;
+            }
+            
+            // Если есть подключение к GitHub, загружаем оттуда
+            if (isGitHubConnected) {
+                loadFromGitHub();
+            }
+        }
+        
+        // Обработчик добавления аниме
+        function handleAddAnime(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('anime-title').value;
+            const description = document.getElementById('anime-description').value;
+            const category = document.getElementById('anime-category').value;
+            const episodes = parseInt(document.getElementById('anime-episodes').value);
+            const image = document.getElementById('anime-image').value;
+            
+            // Создаем новый объект аниме
+            const newAnime = {
+                id: Date.now(), // Простой способ генерации ID
+                title,
+                description,
+                category,
+                episodes,
+                image,
+                kodikLinks: []
+            };
+            
+            // Добавляем в массив данных
+            animeData.push(newAnime);
+            
+            // Показываем сообщение об успехе
+            const messageEl = document.getElementById('anime-form-message');
+            messageEl.textContent = 'Аниме успешно добавлено!';
+            messageEl.className = 'message success';
+            messageEl.style.display = 'block';
+            
+            // Очищаем форму
+            document.getElementById('anime-form').reset();
+            
+            // Обновляем UI
+            updateUI();
+            renderAnimeList();
+            populateAnimeSelect();
+            
+            // Скрываем сообщение через 3 секунды
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Обработчик добавления серий
+        function handleAddEpisodes(e) {
+            e.preventDefault();
+            
+            const animeId = parseInt(document.getElementById('select-anime').value);
+            if (!animeId) {
+                showMessage('Выберите аниме', 'error', 'episode-form-message');
+                return;
+            }
+            
+            // Находим аниме по ID
+            const anime = animeData.find(a => a.id === animeId);
+            if (!anime) {
+                showMessage('Аниме не найдено', 'error', 'episode-form-message');
+                return;
+            }
+            
+            // Собираем ссылки на серии
+            const kodikLinks = [];
+            const kodikLinkItems = document.querySelectorAll('.kodik-link-item');
+            
+            kodikLinkItems.forEach(item => {
+                const title = item.querySelector('.episode-title').value || `Серия ${anime.kodikLinks.length + kodikLinks.length + 1}`;
+                const duration = item.querySelector('.episode-duration').value || '24 минуты';
+                const playerUrl = item.querySelector('.episode-url').value;
+                
+                if (playerUrl) {
+                    // Нормализуем ссылку Kodik
+                    const normalizedUrl = normalizeKodikUrl(playerUrl);
+                    
+                    kodikLinks.push({
+                        title,
+                        duration,
+                        playerUrl: normalizedUrl
+                    });
+                }
+            });
+            
+            if (kodikLinks.length === 0) {
+                showMessage('Добавьте хотя бы одну серию', 'error', 'episode-form-message');
+                return;
+            }
+            
+            // Добавляем серии к аниме
+            anime.kodikLinks.push(...kodikLinks);
+            
+            // Обновляем количество серий
+            anime.episodes = anime.kodikLinks.length;
+            
+            // Показываем сообщение об успехе
+            showMessage(`Добавлено ${kodikLinks.length} серий к "${anime.title}"`, 'success', 'episode-form-message');
+            
+            // Очищаем форму
+            document.getElementById('episode-form').reset();
+            
+            // Оставляем только одно поле для ссылок
+            const container = document.getElementById('kodik-links-container');
+            container.innerHTML = `
+                <div class="kodik-link-item">
+                    <div class="form-group">
+                        <label>Название серии</label>
+                        <input type="text" class="form-control episode-title" placeholder="Название серии">
+                    </div>
+                    <div class="form-group">
+                        <label>Длительность</label>
+                        <input type="text" class="form-control episode-duration" placeholder="Например: 24 минуты">
+                    </div>
+                    <div class="form-group">
+                        <label>Ссылка на плеер Kodik</label>
+                        <input type="text" class="form-control episode-url" placeholder="//kodikdb.com/uv/723044/..." required>
+                    </div>
+                    <button type="button" class="remove-kodik-link" style="display: none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            // Обновляем UI
+            updateUI();
+            renderAnimeList();
+        }
+        
+        // Добавление поля для ссылки на Kodik
+        function addKodikLinkField() {
+            const container = document.getElementById('kodik-links-container');
+            const newItem = document.createElement('div');
+            newItem.className = 'kodik-link-item';
+            newItem.innerHTML = `
+                <div class="form-group">
+                    <label>Название серии</label>
+                    <input type="text" class="form-control episode-title" placeholder="Название серии">
+                </div>
+                <div class="form-group">
+                    <label>Длительность</label>
+                    <input type="text" class="form-control episode-duration" placeholder="Например: 24 минуты">
+                </div>
+                <div class="form-group">
+                    <label>Ссылка на плеер Kodik</label>
+                    <input type="text" class="form-control episode-url" placeholder="//kodikdb.com/uv/723044/..." required>
+                </div>
+                <button type="button" class="remove-kodik-link">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            container.appendChild(newItem);
+            
+            // Добавляем обработчик для кнопки удаления
+            newItem.querySelector('.remove-kodik-link').addEventListener('click', function() {
+                container.removeChild(newItem);
+            });
+            
+            // Показываем кнопки удаления для всех элементов, кроме первого
+            const items = container.querySelectorAll('.kodik-link-item');
+            if (items.length > 1) {
+                items[0].querySelector('.remove-kodik-link').style.display = 'block';
+            }
+        }
+        
+        // Заполнение выпадающего списка аниме
+        function populateAnimeSelect() {
+            const select = document.getElementById('select-anime');
+            select.innerHTML = '<option value="">-- Выберите аниме --</option>';
+            
+            animeData.forEach(anime => {
+                const option = document.createElement('option');
+                option.value = anime.id;
+                option.textContent = anime.title;
+                select.appendChild(option);
+            });
+        }
+        
+        // Рендеринг списка аниме
+        function renderAnimeList() {
+            const container = document.getElementById('anime-list');
+            container.innerHTML = '';
+            
+            if (animeData.length === 0) {
+                container.innerHTML = '<p>Нет добавленных аниме</p>';
+                return;
+            }
+            
+            animeData.forEach(anime => {
+                const animeItem = document.createElement('div');
+                animeItem.className = 'anime-item';
+                animeItem.innerHTML = `
+                    <h4>${anime.title}</h4>
+                    <p>Категория: ${getCategoryName(anime.category)}</p>
+                    <p>Серий: ${anime.episodes} (добавлено: ${anime.kodikLinks.length})</p>
+                    <div class="anime-actions">
+                        <button class="btn btn-warning edit-anime" data-id="${anime.id}">Редактировать</button>
+                        <button class="btn btn-danger delete-anime" data-id="${anime.id}">Удалить</button>
+                    </div>
+                `;
+                
+                container.appendChild(animeItem);
+                
+                // Добавляем обработчик для кнопки редактирования
+                animeItem.querySelector('.edit-anime').addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    openEditModal(id);
+                });
+                
+                // Добавляем обработчик для кнопки удаления
+                animeItem.querySelector('.delete-anime').addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    deleteAnime(id);
+                });
+            });
+        }
+        
+        // Открытие модального окна редактирования
+        function openEditModal(id) {
+            const anime = animeData.find(a => a.id === id);
+            if (!anime) return;
+            
+            currentEditingAnime = anime;
+            
+            // Заполняем форму данными аниме
+            document.getElementById('edit-anime-id').value = anime.id;
+            document.getElementById('edit-anime-title').value = anime.title;
+            document.getElementById('edit-anime-description').value = anime.description;
+            document.getElementById('edit-anime-category').value = anime.category;
+            document.getElementById('edit-anime-episodes').value = anime.episodes;
+            document.getElementById('edit-anime-image').value = anime.image;
+            
+            // Отображаем текущие серии
+            renderCurrentEpisodes(anime);
+            
+            // Показываем модальное окно
+            document.getElementById('edit-anime-modal').style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Закрытие модального окна редактирования
+        function closeEditModal() {
+            document.getElementById('edit-anime-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentEditingAnime = null;
+        }
+        
+        // Рендеринг текущих серий в модальном окне
+        function renderCurrentEpisodes(anime) {
+            const container = document.getElementById('current-episodes');
+            container.innerHTML = '';
+            
+            if (anime.kodikLinks.length === 0) {
+                container.innerHTML = '<p>Нет добавленных серий</p>';
+                return;
+            }
+            
+            anime.kodikLinks.forEach((episode, index) => {
+                const episodeItem = document.createElement('div');
+                episodeItem.className = 'episode-item-management';
+                episodeItem.innerHTML = `
+                    <div class="episode-info">
+                        <h5>${episode.title}</h5>
+                        <p>${episode.duration}</p>
+                        <p><small>${episode.playerUrl}</small></p>
+                    </div>
+                    <div class="episode-actions">
+                        <button class="btn btn-danger remove-episode" data-index="${index}">Удалить</button>
+                    </div>
+                `;
+                
+                container.appendChild(episodeItem);
+                
+                // Добавляем обработчик для кнопки удаления серии
+                episodeItem.querySelector('.remove-episode').addEventListener('click', function() {
+                    const index = parseInt(this.getAttribute('data-index'));
+                    removeEpisode(index);
+                });
+            });
+        }
+        
+        // Удаление серии
+        function removeEpisode(index) {
+            if (!currentEditingAnime) return;
+            
+            if (confirm('Вы уверены, что хотите удалить эту серию?')) {
+                currentEditingAnime.kodikLinks.splice(index, 1);
+                currentEditingAnime.episodes = currentEditingAnime.kodikLinks.length;
+                renderCurrentEpisodes(currentEditingAnime);
+                updateUI();
+                renderAnimeList();
+            }
+        }
+        
+        // Добавление новой серии в модальном окне
+        function addNewEpisode() {
+            if (!currentEditingAnime) return;
+            
+            const title = document.getElementById('new-episode-title').value || `Серия ${currentEditingAnime.kodikLinks.length + 1}`;
+            const duration = document.getElementById('new-episode-duration').value || '24 минуты';
+            const playerUrl = document.getElementById('new-episode-url').value;
+            
+            if (!playerUrl) {
+                showMessage('Введите ссылку на плеер', 'error', 'edit-anime-message');
+                return;
+            }
+            
+            // Нормализуем ссылку Kodik
+            const normalizedUrl = normalizeKodikUrl(playerUrl);
+            
+            // Добавляем серию
+            currentEditingAnime.kodikLinks.push({
+                title,
+                duration,
+                playerUrl: normalizedUrl
+            });
+            
+            // Обновляем количество серий
+            currentEditingAnime.episodes = currentEditingAnime.kodikLinks.length;
+            
+            // Очищаем поля ввода
+            document.getElementById('new-episode-title').value = '';
+            document.getElementById('new-episode-duration').value = '';
+            document.getElementById('new-episode-url').value = '';
+            
+            // Обновляем список серий
+            renderCurrentEpisodes(currentEditingAnime);
+            updateUI();
+            renderAnimeList();
+            
+            showMessage('Серия успешно добавлена', 'success', 'edit-anime-message');
+        }
+        
+        // Обработчик редактирования аниме
+        function handleEditAnime(e) {
+            e.preventDefault();
+            
+            if (!currentEditingAnime) return;
+            
+            // Обновляем данные аниме
+            currentEditingAnime.title = document.getElementById('edit-anime-title').value;
+            currentEditingAnime.description = document.getElementById('edit-anime-description').value;
+            currentEditingAnime.category = document.getElementById('edit-anime-category').value;
+            currentEditingAnime.episodes = parseInt(document.getElementById('edit-anime-episodes').value);
+            currentEditingAnime.image = document.getElementById('edit-anime-image').value;
+            
+            // Закрываем модальное окно
+            closeEditModal();
+            
+            // Обновляем UI
+            updateUI();
+            renderAnimeList();
+            populateAnimeSelect();
+            
+            showMessage('Аниме успешно обновлено', 'success', 'data-message');
+        }
+        
+        // Удаление аниме
+        function deleteAnime(id) {
+            if (confirm('Вы уверены, что хотите удалить это аниме?')) {
+                animeData = animeData.filter(anime => anime.id !== id);
+                updateUI();
+                renderAnimeList();
+                populateAnimeSelect();
+                showMessage('Аниме успешно удалено', 'success', 'data-message');
+            }
+        }
+        
+        // Переключение отображения JSON
+        function toggleJsonView() {
+            const jsonData = document.getElementById('json-data');
+            if (jsonData.style.display === 'none') {
+                jsonData.textContent = JSON.stringify(animeData, null, 2);
+                jsonData.style.display = 'block';
+            } else {
+                jsonData.style.display = 'none';
+            }
+        }
+        
+        // Обновление UI
+        function updateUI() {
+            // Обновляем JSON в разделе экспорта
+            document.getElementById('json-data').textContent = JSON.stringify(animeData, null, 2);
+        }
+        
+        // Получение названия категории по ключу
+        function getCategoryName(category) {
+            switch(category) {
+                case 'new': return 'Онгоинги';
+                case 'completed': return 'Завершённые';
+                default: return category;
+            }
+        }
+        
+        // Показать сообщение
+        function showMessage(text, type, elementId) {
+            const messageEl = document.getElementById(elementId);
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            // Скрываем сообщение через 5 секунд
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+    </script>
+</body>
+</html>
